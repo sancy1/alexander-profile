@@ -479,6 +479,9 @@ def get_cors_origins():
 
     return list(validated_origins)
 
+# CORS_ALLOWED_ORIGINS = get_cors_origins()
+# CORS_ALLOW_ALL_ORIGINS = False  # Avoid ambiguity
+# CORS_ALLOW_CREDENTIALS = True
 
 # CORS Configuration
 # When DEBUG is True, CORS_ALLOW_ALL_ORIGINS should be True for easier local development.

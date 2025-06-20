@@ -37,6 +37,9 @@ urlpatterns = [
     path('api/user/', include('user_account.users_urls')),
     path('api/auth/google/', GoogleLogin.as_view(), name='google-login'),
     path('accounts/', include('allauth.urls')),
+    
+    # Codehub -----------------------------------------------------------------------------------------
+    path('api/codehub/', include('codehub.urls')),
 ]
 
 if settings.DEBUG:
