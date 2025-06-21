@@ -411,6 +411,7 @@ class ShareActivity(models.Model):
         return f"{self.snippet.title} shared via {self.get_share_method_display()}"
     
 
+
 # USERHISTORY-----------------------------------------------------------------------------
 class UserHistory(models.Model):
     """
@@ -438,6 +439,7 @@ class UserHistory(models.Model):
 
     def __str__(self):
         return f"{self.user.email}'s history with {self.snippet.title}"
+
 
 
 # RUN CODE-----------------------------------------------------------------------------

@@ -926,7 +926,8 @@ class ShareActivitySerializer(serializers.ModelSerializer):
     user = UserMinimalSerializer(read_only=True) 
     snippet = serializers.PrimaryKeyRelatedField(
         queryset=CodeSnippet.objects.all(),
-        write_only=True
+        write_only=True,
+        required=False # <--- ADD THIS LINE
     )
     share_method_display = serializers.CharField(
         source='get_share_method_display',
@@ -938,7 +939,7 @@ class ShareActivitySerializer(serializers.ModelSerializer):
         fields = [
             'id',
             'user',
-            'snippet',
+            'snippet', # Keep it in fields
             'share_method',
             'share_method_display',
             'shared_to',
@@ -953,14 +954,20 @@ class ShareActivitySerializer(serializers.ModelSerializer):
         if request:
             validated_data['user'] = request.user if request.user.is_authenticated else None
             validated_data['ip_address'] = request.META.get('REMOTE_ADDR')
+        
+        # The 'snippet' field will be passed directly to serializer.save() from perform_create in the view,
+        # so we don't need to pop it from validated_data here.
+        # super().create will correctly handle extra kwargs like 'snippet'.
         return super().create(validated_data)
+    
+
 
 class UserHistorySerializer(serializers.ModelSerializer):
     user = UserMinimalSerializer(read_only=True) 
     snippet = CodeSnippetSerializer(read_only=True, fields=['id', 'title', 'slug']) # Only show relevant snippet fields
     snippet_id = serializers.PrimaryKeyRelatedField(
         queryset=CodeSnippet.objects.all(),
-        source='snippet',
+        source='snippet', # Maps this input field to the 'snippet' model field
         write_only=True
     )
 
@@ -970,67 +977,85 @@ class UserHistorySerializer(serializers.ModelSerializer):
             'id',
             'user',
             'snippet',
-            'snippet_id',
+            'snippet_id', # Used for input
             'last_viewed',
             'view_count',
             'is_saved',
             'saved_at'
         ]
-        read_only_fields = ['id', 'user', 'last_viewed', 'view_count']
+        read_only_fields = ['id', 'user', 'last_viewed', 'view_count'] # last_viewed and view_count are updated by model/serializer logic
 
     def update(self, instance, validated_data):
         """Handle incrementing view count and saving"""
+        # Handle 'is_saved' status change
         if 'is_saved' in validated_data:
             instance.is_saved = validated_data['is_saved']
             if validated_data['is_saved'] and not instance.saved_at:
                 instance.saved_at = timezone.now()
             elif not validated_data['is_saved'] and instance.saved_at: # If unsaved, clear saved_at
                 instance.saved_at = None 
-            instance.save(update_fields=['is_saved', 'view_count', 'last_viewed', 'saved_at'])
-        
+            # Note: We are saving these fields explicitly. The atomic update for view_count
+            # needs a separate save or to be handled carefully with the other fields.
+            # For simplicity, we can perform one save here, but remember F() expressions
+            # are evaluated at the database level during a save.
+
         # Always increment view count on update and update last_viewed
+        # It's crucial to use F() for view_count to prevent race conditions.
+        # last_viewed should be set to now.
         instance.view_count = F('view_count') + 1
         instance.last_viewed = timezone.now() 
-        instance.save(update_fields=['view_count', 'last_viewed'])
+        
+        # Save all updated fields in one go for atomicity where possible
+        instance.save(update_fields=['is_saved', 'saved_at', 'view_count', 'last_viewed'])
 
-        instance.refresh_from_db()
+        instance.refresh_from_db() # Get the actual, updated count and time from the DB
         return instance
 
     def create(self, validated_data):
         """Create or update user history"""
         request = self.context.get('request')
         user = request.user if request and request.user.is_authenticated else None
-        snippet = validated_data['snippet']
+        
+        # Ensure user is not None for UserHistory which has user as CASCADE
+        if not user:
+            raise serializers.ValidationError({"user": "Authentication is required to create user history."})
+
+        snippet = validated_data['snippet'] # This comes from snippet_id input mapped by source='snippet'
 
         # Check if history already exists for this user and snippet
+        # This is where get_or_create handles the unique_together constraint
         history, created = UserHistory.objects.get_or_create(
             user=user,
             snippet=snippet,
-            defaults={'view_count': 1, 'last_viewed': timezone.now()}
+            defaults={'view_count': 1, 'last_viewed': timezone.now()} # Defaults for new creation
         )
         if not created:
-            # If exists, update view count and last viewed
+            # If history exists, update view count and last viewed
             history.view_count = F('view_count') + 1
             history.last_viewed = timezone.now()
-            history.save(update_fields=['view_count', 'last_viewed'])
-            history.refresh_from_db()
+            history.save(update_fields=['view_count', 'last_viewed']) # Atomic update
+            history.refresh_from_db() # Refresh to get the new count
 
+        # Handle 'is_saved' if it was part of the initial creation request
         if 'is_saved' in validated_data:
             history.is_saved = validated_data['is_saved']
             if validated_data['is_saved'] and not history.saved_at:
                 history.saved_at = timezone.now()
-            elif not validated_data['is_saved'] and history.saved_at: # If unsaved, clear saved_at
-                history.saved_at = None 
-            history.save(update_fields=['is_saved', 'saved_at'])
+            elif not validated_data['is_saved'] and history.saved_at:
+                history.saved_at = None
+            history.save(update_fields=['is_saved', 'saved_at']) # Save saved status changes
 
         return history
+
+
 
 
 class CodeRunSerializer(serializers.ModelSerializer):
     user = UserMinimalSerializer(read_only=True) 
     snippet = serializers.PrimaryKeyRelatedField(
         queryset=CodeSnippet.objects.all(),
-        write_only=True
+        write_only=True,
+        required=False # <--- ADD THIS LINE
     )
 
     class Meta:
@@ -1054,7 +1079,12 @@ class CodeRunSerializer(serializers.ModelSerializer):
             validated_data['user'] = request.user if request.user.is_authenticated else None
             validated_data['ip_address'] = request.META.get('REMOTE_ADDR')
             validated_data['user_agent'] = request.META.get('HTTP_USER_AGENT')
+        
+        # The 'snippet' field will be passed directly to serializer.save() from perform_create in the view,
+        # so we don't need to pop it from validated_data here.
         return super().create(validated_data)
+    
+    
 
 # ==================== OPTIMIZED LIST SERIALIZERS ====================
 

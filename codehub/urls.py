@@ -18,10 +18,13 @@ from .views.snippets import (
     SnippetDeleteView,
     # SnippetReactionsView,
     # SnippetCommentsView,
-    SnippetRunView
+    # SnippetRunView
 )
 from .views.reactions import SnippetReactionsView 
-from .views.comments import SnippetCommentsView, CommentDetailView # <--- NEW/UPDATED IMPORT FOR COMMENT VIEWS
+from .views.comments import SnippetCommentsView, CommentDetailView 
+from .views.shares import SnippetShareActivityView
+from .views.user_history import UserHistoryListCreateView, UserHistoryDetailView
+from .views.code_runs import SnippetRunView
 
 
 urlpatterns = [
@@ -70,8 +73,15 @@ urlpatterns = [
     # Path for retrieving, updating, or deleting a specific comment by its primary key
     path('comments/<int:pk>/', CommentDetailView.as_view(), name='comment-detail'),
     
+    path('snippets/<slug:slug>/shares/', SnippetShareActivityView.as_view(), name='snippet-shares'),
+    
+    # User History endpoints <--- NEW SECTION
+    path('history/', UserHistoryListCreateView.as_view(), name='user-history-list-create'),
+    path('history/<int:pk>/', UserHistoryDetailView.as_view(), name='user-history-detail'),
+    
+    # Code Run endpoint
     path('snippets/<slug:slug>/run/', SnippetRunView.as_view(), name='snippet-run'),
-
 ]
+
 
 

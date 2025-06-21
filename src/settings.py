@@ -161,6 +161,7 @@ from dotenv import load_dotenv
 from urllib.parse import urlparse
 from django.core.exceptions import ImproperlyConfigured
 
+
 load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -417,9 +418,6 @@ else:
     API_BASE_URL = os.getenv("API_BASE_URL", "https://alexandercyril.onrender.com")
 
 
-# settings.py
-import os
-from urllib.parse import urlparse
 
 # Core configuration (must come first)
 DEBUG = os.getenv("DEBUG", "False").lower() == "true"
@@ -479,9 +477,9 @@ def get_cors_origins():
 
     return list(validated_origins)
 
-# CORS_ALLOWED_ORIGINS = get_cors_origins()
-# CORS_ALLOW_ALL_ORIGINS = False  # Avoid ambiguity
-# CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOWED_ORIGINS = get_cors_origins()
+CORS_ALLOW_ALL_ORIGINS = False 
+CORS_ALLOW_CREDENTIALS = True
 
 # CORS Configuration
 # When DEBUG is True, CORS_ALLOW_ALL_ORIGINS should be True for easier local development.
