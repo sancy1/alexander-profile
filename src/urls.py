@@ -17,11 +17,11 @@ from django.urls import path, include
 
 schema_view = swagger_get_schema_view(
     openapi.Info(
-        title='EvigDia Basic API',
+        title='Alexander Cyril Portfolio" API',
         default_version='1.0.0',
-        description='API documentation of FussionPex',
-        terms_of_service="https://www.google.com/policies/terms/",
-        contact=openapi.Contact(email="contact@evigdiabasic.com"),
+        description='API documentation of Alexander Cyril Portfolio',
+        terms_of_service="https://www.alexandercyril.xyz/policies/terms/",
+        contact=openapi.Contact(email="alexander.s.cyril@gmail.com"),
         license=openapi.License(name="BSD License"),
     ),
     public=True,
@@ -40,6 +40,9 @@ urlpatterns = [
     
     # Codehub -----------------------------------------------------------------------------------------
     path('api/codehub/', include('codehub.urls')),
+    
+    # Contact -----------------------------------------------------------------------------------------
+    path('api/', include('contact.urls')),
 ]
 
 if settings.DEBUG:

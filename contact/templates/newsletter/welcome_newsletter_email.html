@@ -1,0 +1,262 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alexander S. Cyril - Welcome to Our Newsletter!</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; background-color: #f8fafc; }
+        .email-container { max-width: 600px; margin: 0 auto; background-color: #ffffff; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); border-radius: 12px; overflow: hidden; }
+        /* ASC Logo Styles */
+        .logo-container { text-align: center; padding: 40px 20px 20px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+        .asc-logo { 
+            width: 80px; 
+            height: 80px; 
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%); 
+            border-radius: 50%; 
+            display: table; /* Using table for robust vertical centering */
+            margin: 0 auto 15px auto; /* Center horizontally */
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3); 
+            border: 4px solid #ffffff; 
+            position: relative; 
+            overflow: hidden; 
+        }
+        .asc-logo::before { content: ''; position: absolute; inset: -8px; background: linear-gradient(135deg, #10b981, #059669, #047857); border-radius: 50%; z-index: -1; filter: blur(8px); opacity: 0.7; }
+        .asc-text { 
+            font-size: 24px; 
+            font-weight: 900; 
+            color: #ffffff; 
+            letter-spacing: 2px; 
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); 
+            display: table-cell; /* For vertical centering with display: table */
+            vertical-align: middle; /* For vertical centering with display: table-cell */
+            text-align: center; /* Explicitly center text content */
+            padding: 0; /* Remove any default padding */
+        }
+        .brand-name { color: #ffffff; font-size: 24px; font-weight: 700; margin-bottom: 5px; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); }
+        .brand-tagline { color: rgba(255, 255, 255, 0.9); font-size: 14px; font-weight: 500; }
+        /* Header Section */
+        .header { padding: 30px 40px; text-align: center; background-color: #ffffff; }
+        .newsletter-title { font-size: 28px; font-weight: 700; color: #1f2937; margin-bottom: 10px; }
+        .newsletter-subtitle { font-size: 16px; color: #6b7280; margin-bottom: 20px; }
+        .date-badge { display: inline-block; background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+        /* Content Sections */
+        .content-section { padding: 30px 40px; border-bottom: 1px solid #e5e7eb; }
+        .content-section:last-of-type { border-bottom: none; }
+        .section-title { font-size: 20px; font-weight: 700; color: #1f2937; margin-bottom: 15px; display: flex; align-items: center; }
+        .section-icon { width: 24px; height: 24px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 50%; margin-right: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; font-weight: bold; }
+        .article-card { background-color: #f9fafb; border-radius: 8px; padding: 20px; margin-bottom: 20px; border-left: 4px solid #10b981; transition: transform 0.2s ease; }
+        .article-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
+        .article-title { font-size: 18px; font-weight: 600; color: #1f2937; margin-bottom: 8px; }
+        .article-excerpt { font-size: 14px; color: #6b7280; margin-bottom: 12px; }
+        .read-more-btn { display: inline-block; background: linear-gradient(135deg, #10b981, #059669); color: white; text-decoration: none; padding: 8px 16px; border-radius: 6px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; transition: all 0.3s ease; }
+        .read-more-btn:hover { background: linear-gradient(135deg, #059669, #047857); transform: translateY(-1px); }
+        /* Quality Offer Card Styles */
+        .quality-offer-card {
+            background-color: #f9fafb; /* Light gray background */
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 4px solid #10b981; /* Green accent bar */
+        }
+        .quality-offer-card .offer-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #065f46; /* Darker green for title */
+            margin-bottom: 5px;
+        }
+        .quality-offer-card .offer-description {
+            font-size: 14px;
+            color: #333;
+        }
+        /* Quick Tips Section */
+        .tips-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; }
+        .tip-item { 
+            background-color: #f0fdf4; 
+            border: 1px solid #bbf7d0; 
+            border-radius: 8px; 
+            padding: 15px; 
+            /* Ensure the entire div is clickable via the anchor */
+        }
+        .tip-item a {
+            text-decoration: none;
+            color: inherit; /* Inherit color from parent */
+            display: block; /* Make the anchor fill the entire card */
+            height: 100%;
+        }
+        .tip-title { font-size: 14px; font-weight: 600; color: #065f46; margin-bottom: 5px; }
+        .tip-text { font-size: 12px; color: #047857; }
+        /* Social Links */
+        .social-section { background-color: #f9fafb; padding: 30px 40px; text-align: center; }
+        .social-title { font-size: 18px; font-weight: 600; color: #1f2937; margin-bottom: 20px; }
+        .social-links { 
+            display: flex; 
+            justify-content: center; 
+            gap: 15px; 
+            margin-bottom: 20px;
+            width: 100%; /* Ensure it takes full width for centering */
+        }
+        .social-link { 
+            width: 40px; 
+            height: 40px; 
+            border-radius: 50%; 
+            display: table; /* Using table for robust vertical centering */
+            text-decoration: none; 
+            color: white; 
+            font-weight: bold; 
+            font-size: 14px; 
+            transition: transform 0.3s ease;
+        }
+        .social-link span { /* Span added for content inside table-cell */
+            display: table-cell;
+            vertical-align: middle;
+            text-align: center;
+        }
+        .social-link:hover { transform: scale(1.1); }
+        .linkedin { background: #0077b5; }
+        .github { background: #333; }
+        .twitter { background: #1da1f2; }
+        /* Footer */
+        .footer { background-color: #1f2937; color: #9ca3af; padding: 30px 40px; text-align: center; }
+        .footer-text { font-size: 12px; margin-bottom: 15px; }
+        .unsubscribe-link { color: #10b981; text-decoration: none; font-size: 12px; }
+        .unsubscribe-link:hover { text-decoration: underline; }
+        /* Responsive Design */
+        @media (max-width: 640px) {
+            .email-container { margin: 10px; border-radius: 8px; }
+            .content-section, .header, .social-section, .footer { padding: 20px; }
+            .newsletter-title { font-size: 24px; }
+            .tips-grid { grid-template-columns: 1fr; }
+            .social-links { gap: 10px; }
+        }
+        /* Animation (Note: Email clients have limited animation support) */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .article-card { animation: fadeInUp 0.6s ease forwards; }
+        .article-card:nth-child(2) { animation-delay: 0.1s; }
+        .article-card:nth-child(3) { animation-delay: 0.2s; }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="logo-container">
+            <div class="asc-logo">
+                <span class="asc-text">ASC</span>
+            </div>
+            <div class="brand-name">Alexander S. Cyril</div>
+            <div class="brand-tagline">Software Engineer & Tech Innovator</div>
+        </div>
+
+        <div class="header">
+            <h1 class="newsletter-title">Welcome to Alexander S. Cyril's Newsletter!</h1>
+            <p class="newsletter-subtitle">Thank you for subscribing, {{ subscriber_email }}!</p>
+            <span class="date-badge">{{ current_month_year }} Edition</span>
+        </div>
+
+        <div class="content-section">
+            <h2 class="section-title">
+                <span class="section-icon">🎉</span>
+                Your Subscription is Confirmed!
+            </h2>
+            <p style="font-size: 15px; color: #555555; margin-bottom: 15px;">
+                We're thrilled to have you join our community. Get ready to receive a curated selection of cutting-edge tech insights, deep dives into software engineering, and valuable industry trends, delivered directly to your inbox.
+            </p>
+            <p style="font-size: 15px; color: #555555; margin-bottom: 15px;">
+                Our goal is to equip you with the knowledge and tools to stay ahead in the rapidly evolving tech landscape. Look out for our next update, packed with exciting content!
+            </p>
+            <a href="{{ website_url }}" class="read-more-btn" style="background: linear-gradient(135deg, #10b981, #059669);">Visit My Website</a>
+        </div>
+
+        <div class="content-section">
+            <h2 class="section-title">
+                <span class="section-icon">🌟</span>
+                My Commitment to Your Success
+            </h2>
+            <p style="font-size: 15px; color: #555555; margin-bottom: 15px;">
+                Beyond the newsletter, I offer tailored tech services designed to elevate your projects and skills. When you choose to patronize my services, you benefit from:
+            </p>
+            <div class="quality-offer-card">
+                <h3 class="offer-title">Expert-Led Development</h3>
+                <p class="offer-description">
+                    Leverage my full-stack and mobile development expertise to build high-performance, scalable, and user-friendly applications.
+                </p>
+            </div>
+            <div class="quality-offer-card">
+                <h3 class="offer-title">Data-Driven Insights</h3>
+                <p class="offer-description">
+                    Unlock the power of your data with advanced analytics and machine learning solutions that provide actionable intelligence.
+                </p>
+            </div>
+            <div class="quality-offer-card">
+                <h3 class="offer-title">Automated Efficiency</h3>
+                <p class="offer-description">
+                    Streamline your operations with intelligent process automation, saving time and reducing manual effort.
+                </p>
+            </div>
+            <div class="quality-offer-card">
+                <h3 class="offer-title">Personalized Guidance</h3>
+                <p class="offer-description">
+                    Receive one-on-one consultation and support to navigate complex tech challenges and achieve your project goals efficiently.
+                </p>
+            </div>
+            <div class="quality-offer-card">
+                <h3 class="offer-title">Continuous Innovation</h3>
+                <p class="offer-description">
+                    Stay updated with the latest tools and methodologies, ensuring your solutions are always at the cutting edge.
+                </p>
+            </div>
+            <p style="font-size: 15px; color: #555555; margin-top: 15px; margin-bottom: 15px;">
+                Let's transform your ideas into reality. Feel free to reach out for a consultation!
+            </p>
+            <a href="{{ website_url }}" class="read-more-btn" style="background: linear-gradient(135deg, #007bff, #0056b3);">Contact Me for Services</a>
+        </div>
+
+
+        <div class="content-section">
+            <h2 class="section-title">
+                <span class="section-icon">🚀</span> Next Steps
+            </h2>
+            <div class="tips-grid">
+                <div class="tip-item">
+                    <a href="https://www.alexandercyril.xyz/portfolio" style="text-decoration: none; color: inherit; display: block; height: 100%;">
+                        <div class="tip-title">Explore My Portfolio</div>
+                        <div class="tip-text">See my latest projects and how I bring solutions to life.</div>
+                    </a>
+                </div>
+                <div class="tip-item">
+                    <a href="{{ social_media_url }}" style="text-decoration: none; color: inherit; display: block; height: 100%;">
+                        <div class="tip-title">Connect with Me</div>
+                        <div class="tip-text">Follow me on social media for daily tech updates and behind-the-scenes insights.</div>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="social-section">
+            <h2 class="social-title">Connect With Me</h2>
+            <div class="social-links">
+                <a href="{{ linkedin_url }}" class="social-link linkedin"><span>in</span></a>
+                <a href="{{ github_url }}" class="social-link github"><span>gh</span></a>
+                <a href="{{ twitter_url }}" class="social-link twitter"><span>tw</span></a>
+            </div>
+            <p style="font-size: 14px; color: #6b7280;">
+                Follow me for daily tech insights, coding tips, and industry updates
+            </p>
+        </div>
+
+        <div class="footer">
+            <p class="footer-text">
+                © {{ current_year }} Alexander S. Cyril. All rights reserved.<br>
+                You're receiving this because you subscribed to our newsletter.
+            </p>
+            <a href="{{ unsubscribe_url }}" class="unsubscribe-link">Unsubscribe</a> |
+            <a href="{{ preferences_url }}" class="unsubscribe-link">Update Preferences</a> |
+            <a href="{{ view_in_browser_url }}" class="unsubscribe-link">View in Browser</a>
+        </div>
+    </div>
+</body>
+</html>
