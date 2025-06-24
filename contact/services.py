@@ -396,7 +396,7 @@ class NewsletterService:
         except Exception as e:
             logger.error(f"Error generating unsubscribe URL: {str(e)}")
             # Provide a generic fallback URL if all else fails
-            return f"http://yourdomain.com/unsubscribe/?email={email}"  
+            return f"http://www.alexandercyril.xyz/unsubscribe/?email={email}"  
 
     @staticmethod
     def subscribe_email(data):
