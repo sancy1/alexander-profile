@@ -66,8 +66,8 @@ MIDDLEWARE = [
     "axes.middleware.AxesMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "allauth.account.middleware.AccountMiddleware",
-    # "user_account.middleware.middleware.NeonKeepAliveMiddleware",
-    # "user_account.middleware.ping_render.RenderKeepAlive",
+    "user_account.middleware.middleware.NeonKeepAliveMiddleware",
+    "user_account.middleware.ping_render.RenderKeepAlive",
 ]
 
 ROOT_URLCONF = "src.urls"
@@ -94,44 +94,44 @@ WSGI_APPLICATION = "src.wsgi.application"
 # SQLite Database ------------------------------------------------------------------
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
 
 
 # POSTGRESQL DATABASE ------------------------------------------------------------------
 
-# DATABASE_URL = os.getenv("DATABASE_URL")  # From .env
-# parsed = urlparse(DATABASE_URL)
+DATABASE_URL = os.getenv("DATABASE_URL")  # From .env
+parsed = urlparse(DATABASE_URL)
 
-# if DATABASE_URL:
-#     parsed = urlparse(DATABASE_URL)
-#     # print(f"Parsed URL: {parsed}") #for debugging
-#     DATABASES = {
-#         "default": {
-#             "ENGINE": "django.db.backends.postgresql",
-#             "NAME": parsed.path.lstrip("/"),  # Remove the leading slash
-#             "USER": parsed.username,
-#             "PASSWORD": parsed.password,
-#             "HOST": parsed.hostname,
-#             "PORT": parsed.port or 5432,  # Use 5432 as default if port is None
-#             "OPTIONS": {
-#                 "sslmode": "require",  # Ensure SSL is required
-#             },
-#         }
-#     }
-# else:
-#     # Handle the case where DATABASE_URL is not set.  This is crucial!
-#     # DATABASES = {
-#     #     'default': {
-#     #         'ENGINE': 'django.db.backends.sqlite3',
-#     #         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-#     #     }
-#     # }
-#     print("DATABASE_URL is not set. Using SQLite instead.")
+if DATABASE_URL:
+    parsed = urlparse(DATABASE_URL)
+    # print(f"Parsed URL: {parsed}") #for debugging
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": parsed.path.lstrip("/"),  # Remove the leading slash
+            "USER": parsed.username,
+            "PASSWORD": parsed.password,
+            "HOST": parsed.hostname,
+            "PORT": parsed.port or 5432,  # Use 5432 as default if port is None
+            "OPTIONS": {
+                "sslmode": "require",  # Ensure SSL is required
+            },
+        }
+    }
+else:
+    # Handle the case where DATABASE_URL is not set.  This is crucial!
+    # DATABASES = {
+    #     'default': {
+    #         'ENGINE': 'django.db.backends.sqlite3',
+    #         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    #     }
+    # }
+    print("DATABASE_URL is not set. Using SQLite instead.")
 
 
 AUTH_PASSWORD_VALIDATORS = [
