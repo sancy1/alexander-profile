@@ -517,6 +517,7 @@ Current active subscribers: {NewsletterSubscriber.objects.filter(is_active=True)
                         'feedback_url': f"{getattr(settings, 'FRONTEND_URL', 'https://www.alexandercyril.xyz')}/feedback/unsubscribe/", # Example feedback URL
                         'preferences_url': f"{getattr(settings, 'FRONTEND_URL', 'https://www.alexandercyril.xyz')}/preferences",
                         'view_in_browser_url': f"{ContactService.get_base_url()}/newsletter/view-in-browser/confirmation/", # A generic link, or dynamic if needed
+                        
                         # Add your social media links here
                         'linkedin_url': 'https://www.linkedin.com/in/yourlinkedinprofile', # Replace with actual
                         'github_url': 'https://github.com/yourgithubprofile', # Replace with actual
