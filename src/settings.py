@@ -66,8 +66,8 @@ MIDDLEWARE = [
     "axes.middleware.AxesMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "allauth.account.middleware.AccountMiddleware",
-    "user_account.middleware.middleware.NeonKeepAliveMiddleware",
-    "user_account.middleware.ping_render.RenderKeepAlive",
+    # "user_account.middleware.middleware.NeonKeepAliveMiddleware",
+    # "user_account.middleware.ping_render.RenderKeepAlive",
 ]
 
 ROOT_URLCONF = "src.urls"
