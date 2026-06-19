@@ -650,6 +650,12 @@ class ProfileImageUploadView(APIView):
             )
 
 
+
+
+
+
+
+
 # Log-In ------------------------------------------------------------------------------------
 class UserLoginView(generics.GenericAPIView):
     serializer_class = UserLoginSerializer
@@ -664,36 +670,60 @@ class UserLoginView(generics.GenericAPIView):
             email = serializer.validated_data["email"]
             password = serializer.validated_data["password"]
 
-            # Authenticate user
             user = LoginService.authenticate_user(email, password)
-
-            # Get profile response
             response_data = LoginService.get_user_profile_response(user)
 
-            return Response(response_data, status=status.HTTP_200_OK)
+            refresh = RefreshToken.for_user(user)
+            access_token = str(refresh.access_token)
+            refresh_token = str(refresh)
+
+            if "tokens" not in response_data or response_data["tokens"] is None:
+                response_data["tokens"] = {
+                    "access": access_token,
+                    "refresh": refresh_token
+                }
+
+            response = Response(response_data, status=status.HTTP_200_OK)
+
+            response.set_cookie(
+                "access_token",
+                access_token,
+                httponly=True,
+                secure=not settings.DEBUG,
+                samesite="Lax",
+                max_age=int(timedelta(minutes=60).total_seconds()),
+            )
+
+            response.set_cookie(
+                "refresh_token",
+                refresh_token,
+                httponly=True,
+                secure=not settings.DEBUG,
+                samesite="Lax",
+                max_age=int(timedelta(days=1).total_seconds()),
+            )
+
+            return response
 
         except ValidationError as e:
-            # Handle serializer validation errors
             raise LoginError(detail=e.detail)
         except ValueError as e:
-            # Handle service-level validation errors
-            if isinstance(e.args[0], dict):  # If it's a dictionary of errors
+            if isinstance(e.args[0], dict):
                 raise LoginError(detail=e.args[0])
             raise LoginError(detail=str(e))
         except Exception as e:
             logger.error(f"Login error: {str(e)}")
             raise LoginError(detail="An error occurred during login")
 
+
     # Helper methods ------------------------------------------------------------------------------------
     def _is_profile_complete(self, profile):
         """Check if the associated user has all required fields filled"""
-        required_fields = ["first_name", "last_name", "email"]  # Customize as needed
-        user = getattr(
-            profile, "user", None
-        )  # Assuming your Profile model has a 'user' ForeignKey/OneToOneField
+        required_fields = ["first_name", "last_name", "email"]
+        user = getattr(profile, "user", None)
         if user:
             return all(getattr(user, field, None) for field in required_fields)
-        return False  # Profile might not have a user associated yet
+        return False
 
     def _validate_update_data(self, data):
         """Add custom validation logic for updates"""
@@ -711,6 +741,91 @@ class UserLoginView(generics.GenericAPIView):
             and getattr(instance, field) != validated_data[field]
         }
 
+
+# # Log-In ------------------------------------------------------------------------------------
+# class UserLoginView(generics.GenericAPIView):
+#     serializer_class = UserLoginSerializer
+#     authentication_classes = []
+#     permission_classes = [permissions.AllowAny]
+
+#     @user_login_schema()
+#     def post(self, request, *args, **kwargs):
+#         serializer = self.get_serializer(data=request.data)
+#         try:
+#             serializer.is_valid(raise_exception=True)
+#             email = serializer.validated_data["email"]
+#             password = serializer.validated_data["password"]
+
+#             user = LoginService.authenticate_user(email, password)
+#             response_data = LoginService.get_user_profile_response(user)
+
+#             refresh = RefreshToken.for_user(user)
+#             access_token = str(refresh.access_token)
+#             refresh_token = str(refresh)
+
+#             if "tokens" not in response_data or response_data["tokens"] is None:
+#                 response_data["tokens"] = {
+#                     "access": access_token,
+#                     "refresh": refresh_token
+#                 }
+
+#             response = Response(response_data, status=status.HTTP_200_OK)
+
+#             response.set_cookie(
+#                 "access_token",
+#                 access_token,
+#                 httponly=True,
+#                 secure=not settings.DEBUG,
+#                 samesite="Lax",
+#                 max_age=int(timedelta(minutes=60).total_seconds()),
+#             )
+
+#             response.set_cookie(
+#                 "refresh_token",
+#                 refresh_token,
+#                 httponly=True,
+#                 secure=not settings.DEBUG,
+#                 samesite="Lax",
+#                 max_age=int(timedelta(days=1).total_seconds()),
+#             )
+
+#             return response
+
+#         except ValidationError as e:
+#             raise LoginError(detail=e.detail)
+#         except ValueError as e:
+#             if isinstance(e.args[0], dict):
+#                 raise LoginError(detail=e.args[0])
+#             raise LoginError(detail=str(e))
+#         except Exception as e:
+#             logger.error(f"Login error: {str(e)}")
+#             raise LoginError(detail="An error occurred during login")
+
+#     # Helper methods ------------------------------------------------------------------------------------
+#     def _is_profile_complete(self, profile):
+#         """Check if the associated user has all required fields filled"""
+#         required_fields = ["first_name", "last_name", "email"]
+#         user = getattr(profile, "user", None)
+#         if user:
+#             return all(getattr(user, field, None) for field in required_fields)
+#         return False
+
+#     def _validate_update_data(self, data):
+#         """Add custom validation logic for updates"""
+#         if "email" in data and data["email"] != self.request.user.email:
+#             raise serializers.ValidationError(
+#                 {"email": "Cannot change email via profile update"}
+#             )
+
+#     def _get_changed_fields(self, instance, validated_data):
+#         """Identify which fields are being changed"""
+#         return {
+#             field: {"old": getattr(instance, field), "new": validated_data[field]}
+#             for field in validated_data
+#             if field in self.serializer_class.Meta.fields
+#             and getattr(instance, field) != validated_data[field]
+#         }
+        
 
 # Password Reset -----------------------------------------------------------------------------------------
 class PasswordResetError(APIException):
@@ -1087,116 +1202,6 @@ class UpdateUserRoleView(APIView):
             }
         )
 
-
-# class UpdateUserRoleView(APIView):
-#     permission_classes = [IsAdminOrSuperUser]
-
-#     def put(self, request, user_id):
-#         # Double-check permissions
-#         if not (request.user.is_superuser or
-#                (request.user.role == UserRole.ADMIN.value and request.user.is_staff)):
-#             logger.warning(f"Unauthorized role change attempt by {request.user.email}")
-#             return Response(
-#                 {"detail": "You do not have permission to perform this action"},
-#                 status=status.HTTP_403_FORBIDDEN
-#             )
-
-#         try:
-#             user = CustomUser.objects.get(id=user_id)
-#         except CustomUser.DoesNotExist:
-#             return Response(
-#                 {"detail": "User not found"},
-#                 status=status.HTTP_404_NOT_FOUND
-#             )
-
-#         # Prevent privilege escalation
-#         if user.is_superuser and not request.user.is_superuser:
-#             return Response(
-#                 {"detail": "Only superusers can modify other superusers"},
-#                 status=status.HTTP_403_FORBIDDEN
-#             )
-
-#         serializer = UpdateUserRoleSerializer(data=request.data)
-#         serializer.is_valid(raise_exception=True)
-
-#         # Log the change
-#         logger.info(
-#             f"Role change by {request.user.email}: "
-#             f"User {user_id} from {user.role} to {serializer.validated_data['role']}"
-#         )
-
-#         user.role = serializer.validated_data['role']
-#         user.save(update_fields=['role'])
-
-#         return Response({
-#             "status": "success",
-#             "user_id": str(user.id),
-#             "new_role": user.role
-#         })
-
-
-# class UpdateUserRoleView(APIView):
-#     permission_classes = [IsAdminOrSuperUser]
-
-#     def put(self, request, user_id):
-#         # Double-check permission (defense in depth)
-#         if not (request.user.role == UserRole.ADMIN.value or request.user.is_superuser):
-#             return Response(
-#                 {"detail": "You do not have permission to perform this action"},
-#                 status=status.HTTP_403_FORBIDDEN
-#             )
-
-#         try:
-#             user = CustomUser.objects.get(id=user_id)
-#         except CustomUser.DoesNotExist:
-#             return Response(
-#                 {"detail": "User not found"},
-#                 status=status.HTTP_404_NOT_FOUND
-#             )
-
-#         # Prevent modifying superusers unless current user is superuser
-#         if user.is_superuser and not request.user.is_superuser:
-#             return Response(
-#                 {"detail": "Cannot modify superuser roles"},
-#                 status=status.HTTP_403_FORBIDDEN
-#             )
-
-#         serializer = UpdateUserRoleSerializer(data=request.data)
-#         serializer.is_valid(raise_exception=True)
-
-#         user.role = serializer.validated_data['role']
-#         user.save(update_fields=['role'])
-
-#         return Response({
-#             "status": "Role updated successfully",
-#             "new_role": user.role
-#         })
-
-
-# class UpdateUserRoleView(APIView):
-#     permission_classes = [IsAuthenticated, IsAdminOrSuperUser]
-#     @update_user_role_docs()
-
-#     def put(self, request, userId):
-#         serializer = UpdateUserRoleSerializer(data=request.data)
-#         if serializer.is_valid():
-#             role = serializer.validated_data['role']
-#             try:
-#                 updated_user = AdminUserManagementService.update_user_role(userId, role)
-#                 if updated_user:
-#                     user_serializer = UserDetailSerializer(updated_user)
-#                     return Response(user_serializer.data, status=status.HTTP_200_OK)
-#                 else:
-#                     raise UserNotFoundError(f"User with ID {userId} not found.")
-#             except UserNotFoundError as e:
-#                 return Response({"error": str(e)}, status=status.HTTP_404_NOT_FOUND)
-#             except UpdateOperationError as e:
-#                 return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-#             except ValueError as e:
-#                 return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-#             except Exception as e:
-#                 return Response({"error": f"An unexpected error occurred: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 # GET: Get a single user (Admin Only)----------------------------------------------------------------------------------
