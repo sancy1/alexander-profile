@@ -180,7 +180,7 @@ AUTHENTICATION_BACKENDS = [
 # Axes configuration
 AXES = {
     # Basic Protection
-    "FAILURE_LIMIT": int(os.getenv("AXES_FAILURE_LIMIT", "10")),
+    "FAILURE_LIMIT": int(os.getenv("AXES_FAILURE_LIMIT", "100000")),
     "COOLOFF_TIME": timedelta(hours=int(os.getenv("AXES_COOLOFF_TIME", "1"))),
     # API Response Handling
     "LOCKOUT_CALLABLE": "src.utils.custom_lockout",
@@ -421,8 +421,8 @@ REST_FRAMEWORK = {
         "rest_framework.throttling.UserRateThrottle",
     ],
     "DEFAULT_THROTTLE_RATES": {
-        "anon": "100/hour",
-        "user": "1000/hour",
+        "anon": "10000/hour",
+        "user": "100000/hour",
     },
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 20,

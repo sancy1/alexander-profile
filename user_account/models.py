@@ -26,6 +26,11 @@ class CustomUserManager(BaseUserManager):
             raise ValueError("The Email field must be set")
         email = self.normalize_email(email)
 
+        # 👇 FIX: Handle the blank + unique username field constraint for PostgreSQL
+        if not extra_fields.get("username"):
+            # Set username to the email address string so it's guaranteed unique
+            extra_fields["username"] = email
+
         # Set default role if not provided
         role = extra_fields.pop("role", None)
         if not role or role not in dict(UserRole.choices()).keys():
@@ -43,6 +48,10 @@ class CustomUserManager(BaseUserManager):
         extra_fields.setdefault("is_superuser", True)
         extra_fields.setdefault("role", UserRole.ADMIN.value)
         extra_fields.setdefault("is_verified", True)
+
+        # 👇 FIX: Make sure username is explicitly populated during terminal prompt execution
+        if not extra_fields.get("username"):
+            extra_fields["username"] = email
 
         if extra_fields.get("is_staff") is not True:
             raise ValueError("Superuser must have is_staff=True.")

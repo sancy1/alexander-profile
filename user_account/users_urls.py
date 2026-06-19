@@ -27,6 +27,7 @@ from .views import (
     AccountInfoView,
     DevTokenView,
     healthcheck,
+    ProfileImageUploadView,
 )
 
 urlpatterns = [
@@ -40,6 +41,7 @@ urlpatterns = [
     ),
     # Profile endpoints
     path("profile/", ProfileView.as_view(), name="profile"),
+    path("profile/upload-image/", ProfileImageUploadView.as_view(), name="profile-image-upload"),
     # Custome User ----------------------------------------------------------------------------------------
     path("register/", RegisterView.as_view(), name="register"),
     path("verify-email/", VerifyEmailView.as_view(), name="verify-email"),

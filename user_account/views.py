@@ -594,6 +594,62 @@ class ProfileView(generics.RetrieveUpdateAPIView):
             )
 
 
+# Profile Image Upload --------------------------------------------------------------------------
+class ProfileImageUploadView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            profile = request.user.profile
+            image_file = request.FILES.get('image')
+
+            if not image_file:
+                return Response(
+                    {"error": "No image file provided"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            # Validate file type
+            if not image_file.content_type.startswith('image/'):
+                return Response(
+                    {"error": "File must be an image"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            # Validate file size (5MB limit)
+            if image_file.size > 5 * 1024 * 1024:
+                return Response(
+                    {"error": "File size exceeds 5MB limit"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            # Delete old profile image if exists
+            if profile.profile_image:
+                profile.profile_image.delete(save=False)
+
+            # Set new profile image
+            profile.profile_image = image_file
+            profile.profile_image_url = ""
+            profile.save()
+
+            serializer = ProfileSerializer(profile)
+            return Response(
+                {
+                    "status": "success",
+                    "message": "Profile image uploaded successfully",
+                    "data": serializer.data
+                },
+                status=status.HTTP_200_OK
+            )
+
+        except Exception as e:
+            logger.error(f"Profile image upload error: {str(e)}")
+            return Response(
+                {"error": f"Failed to upload profile image: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
 # Log-In ------------------------------------------------------------------------------------
 class UserLoginView(generics.GenericAPIView):
     serializer_class = UserLoginSerializer

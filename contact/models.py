@@ -54,3 +54,40 @@ class DeletedSubscriber(models.Model):
 
     def __str__(self):
         return self.email + " (deleted)"
+
+
+# NEWSLETTER CAMPAIGN --------------------------------------------------------------------------
+class NewsletterCampaign(models.Model):
+    STATUS_CHOICES = [
+        ('draft', 'Draft'),
+        ('scheduled', 'Scheduled'),
+        ('sent', 'Sent'),
+        ('cancelled', 'Cancelled'),
+    ]
+
+    title = models.CharField(max_length=200)
+    subject = models.CharField(max_length=200)
+    content = models.TextField()
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft')
+    scheduled_for = models.DateTimeField(null=True, blank=True)
+    sent_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    created_by = models.ForeignKey(
+        'user_account.CustomUser',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='newsletter_campaigns'
+    )
+    recipient_count = models.IntegerField(default=0)
+    opened_count = models.IntegerField(default=0)
+    clicked_count = models.IntegerField(default=0)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Newsletter Campaign'
+        verbose_name_plural = 'Newsletter Campaigns'
+
+    def __str__(self):
+        return f"{self.title} - {self.status}"
