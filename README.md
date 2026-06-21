@@ -532,13 +532,14 @@ Future enhancements include:
 
 ## Alexander Cyril
 
-Professional Software Developer
+Software Engineer specializing in:
 
-- Backend Engineering
-- API Development
-- Cloud Deployments
-- Full-Stack Applications
-- Developer Platforms
+- Full-Stack & Backend Engineering
+- AI & Agentic Systems Development
+- Distributed Systems & Event-Driven Architecture
+- API Design & Platform Engineering
+- Cloud Infrastructure, DevOps & Automation
+- System Design & Scalable Architecture
 
 ---
 
